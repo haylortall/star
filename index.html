@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Star</title>
+
+<meta property="og:title" content="Star">
+<meta property="og:image" content="https://haylortall.github.io/star/preview.png">
+
+<style>
+:root {
+  --mx:50%;
+  --my:40%;
+}
+
+html,body{
+  margin:0;
+  height:100%;
+  overflow:hidden;
+  font-family:Georgia,serif;
+  background:
+    radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.08), transparent 25%),
+    radial-gradient(circle at 50% 30%, rgba(255,255,255,.05), transparent 35%),
+    #070707;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.22;
+  mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+}
+
+.stage{
+  height:100%;
+  display:grid;
+  place-items:center;
+}
+
+.star-wrap{
+  width:min(54vmin,440px);
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  filter:drop-shadow(0 0 40px rgba(255,255,255,.10));
+  animation:breathe 6s ease-in-out infinite;
+}
+
+@keyframes breathe{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.035)}
+}
+
+.star-wrap.pulse{
+  animation:tap .6s ease;
+}
+
+@keyframes tap{
+  0%{transform:scale(1)}
+  30%{transform:scale(.95) rotate(-2deg)}
+  60%{transform:scale(1.08) rotate(2deg)}
+  100%{transform:scale(1)}
+}
+
+svg{
+  width:100%;
+  height:100%;
+}
+
+.star{
+  transition:.4s;
+}
+
+.sig{
+  position:fixed;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:2.2rem;
+  color:white;
+  letter-spacing:-.03em;
+  text-shadow:0 0 20px rgba(255,255,255,.12);
+}
+
+.count{
+  position:fixed;
+  top:24px;
+  left:50%;
+  transform:translateX(-50%);
+  color:rgba(255,255,255,.6);
+  font-size:.9rem;
+  letter-spacing:.1em;
+}
+
+.burst{
+  position:fixed;
+  pointer-events:none;
+  animation:float 1.1s ease forwards;
+}
+
+@keyframes float{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
+  15%{opacity:1}
+  100%{
+    opacity:0;
+    transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.2);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="count" id="count">0 clicks</div>
+
+<div class="stage">
+  <div class="star-wrap" id="wrap">
+    <svg viewBox="0 0 500 500">
+      <path id="star" class="star"
+        fill="#fff"
+        d="M250 68 L284 176 L398 176 L307 244 L341 357 L250 289 L159 357 L193 244 L102 176 L216 176 Z"/>
+    </svg>
+  </div>
+</div>
+
+<div class="sig">♡ Taylor</div>
+
+<script>
+const star=document.getElementById("star");
+const wrap=document.getElementById("wrap");
+const count=document.getElementById("count");
+
+let clicks=0;
+
+const shapes=[
+"M250 58 L282 170 L396 170 L305 238 L338 352 L250 287 L162 352 L195 238 L104 170 L218 170 Z",
+"M250 54 L270 168 L362 112 L298 208 L414 232 L299 256 L362 350 L270 294 L250 408 L230 294 L138 350 L201 256 L86 232 L202 208 L138 112 L230 168 Z",
+"M250 48 L278 178 L408 156 L304 238 L388 344 L269 300 L250 430 L231 300 L112 344 L196 238 L92 156 L222 178 Z"
+];
+
+const colors=["#fff","#ffd9a8","#d8dcff","#ffd4ea","#d6fff0"];
+
+let i=0;
+
+function burst(x,y){
+  const e=["✦","✧","⋆"];
+  for(let j=0;j<9;j++){
+    let el=document.createElement("div");
+    el.className="burst";
+    el.innerText=e[j%3];
+    el.style.left=x+"px";
+    el.style.top=y+"px";
+    el.style.setProperty("--dx",(Math.random()*200-100)+"px");
+    el.style.setProperty("--dy",(-80-Math.random()*120)+"px");
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1100);
+  }
+}
+
+wrap.onclick=(e)=>{
+  clicks++;
+  count.innerText=clicks+" clicks";
+
+  i++;
+  star.setAttribute("d",shapes[i%shapes.length]);
+  star.setAttribute("fill",colors[i%colors.length]);
+
+  wrap.classList.remove("pulse");
+  void wrap.offsetWidth;
+  wrap.classList.add("pulse");
+
+  burst(e.clientX,e.clientY);
+};
+
+window.onmousemove=(e)=>{
+  document.documentElement.style.setProperty("--mx",(e.clientX/window.innerWidth*100)+"%");
+  document.documentElement.style.setProperty("--my",(e.clientY/window.innerHeight*100)+"%");
+};
+</script>
+
+</body>
+</html>
